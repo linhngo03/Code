@@ -1,0 +1,93 @@
+''' Descriptions '''
+# Code sample for Python
+# Linh Ngo create this for CNN research  
+# File: connect with 1Python.batch.sh.txt and core50.py ( from Dr. Fagg )
+# I builds a convolutional neural network (CNN) model using TensorFlow and trains it on the Core50 dataset, 
+#which contains images of various objects. The purpose is to classify the objects into two classes (2 and 4) based on their images. 
+#The code creates training, validation, and testing datasets, and uses the Adam optimizer and binary cross-entropy loss function for training.
+#The model is compiled and trained using the fit() function, with early stopping and binary accuracy as the metrics.
+
+'''TODO'''
+import pickle # Import the pickle module for loading data from a pickle file
+import pandas as pd # Import the pandas library for data manipulation
+import sys # Import the sys module for system-specific parameters and functions
+import os # Import the os module for interacting with the operating system
+import argparse # Import the argparse module for parsing command-line arguments
+from modeling.core50 import * # Import the Core50 class from the modeling module
+
+# Define a function to create an argument parser, command line and edit this in batch.sh
+def create_parser():
+  parser = argparse.ArgumentParser(description='Process some batch_size.')
+  parser.add_argument('--batch1', type=int, default=32, help="Training set batch size")
+  parser.add_argument('--epoch1', type=int, default=50, help="Training set epoch size")  # if I have some extra time for this and the batch size run fine.
+  args = parser.parse_args()
+  return args
+  #return args.batch1
+
+
+#edit the input a bit what should i do type
+# Define a function to load the Core50 dataset and create training, validation, and testing datasets
+def make_datasets(batch_size):
+  core50_obj = Core50('/home/linhngo/core50_df.pkl') # Load the Core50 dataset from a pickle file
+  # Set the base directory for the dataset
+  base_dir = '/ourdisk/hpc/symbiotic/auto_archive_notyet/tape_2copies/datasets/public/core50/core50_128x128'
+
+  core50_obj.set_problem_class_by_equality('class', [2,4]) # 2 and 4 the number of the object. Each object have 5 difft video and pictures angle 
+  core50_obj.filter_problem_class() 
+  folds = core50_obj.create_subsets_by_equality('example', list(range(5)))
+  
+
+  df_training, df_validation, df_testing = core50_obj.create_training_validation_testing(0, folds, len(folds)-2)
+     # Create training, validation, and testing datasets from the dataframes
+  ds_training = core50_obj.create_dataset(df_training, base_dir, column_file='fname', batch_size=batch_size,
+                                          column_label='problem_class', shuffle=100,
+                                          dataset_name='train')
+  
+  ds_validation = core50_obj.create_dataset(df_validation, base_dir, column_file='fname', batch_size=batch_size,
+                                          column_label='problem_class', shuffle=100,
+                                          dataset_name='vali')
+  
+  ds_testing = core50_obj.create_dataset(df_testing, base_dir, column_file='fname', batch_size=batch_size,
+                                          column_label='problem_class', shuffle=100,
+                                          dataset_name='test')
+  return ds_training, ds_validation, ds_testing
+   
+
+
+def execute_exp():
+  # data= make_datasets()  do the same things 
+  args = create_parser()  
+  # Create the training, validation, and testing datasets using the make_datasets function with the batch size from the parsed arguments
+  ds_training, ds_validation, ds_testing= make_datasets(args.batch1) # take the input and get batch1 for the amount of batch 
+  #ds_training, ds_validation, ds_testing= make_datasets()
+  
+  input_shape = (128, 128, 3)
+  num_output = 1
+  model = tf.keras.Sequential(
+        [
+            tf.keras.Input(shape=input_shape),
+            tf.keras.layers.Conv2D(32, kernel_size=(4,4), activation="relu"), # 4x4 kernel moving across the image
+            tf.keras.layers.MaxPooling2D(pool_size=(2, 2)), # Downsize by max value of moving 2x2 window
+            tf.keras.layers.Conv2D(64, kernel_size=(4, 4), activation="relu"), 
+            tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+            tf.keras.layers.Flatten(), # Flatten data to 1D
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Dense(num_output, activation="softmax"), # Output layer
+        ]
+    )
+  print(model.summary())
+
+  cb = tf.keras.callbacks.EarlyStopping(patience = 20, restore_best_weights=True, monitor='accuracy',mode='max') # Stop training if accuracy isn't improving
+  opt = tf.keras.optimizers.Adam(learning_rate=1e-4) # Creates the optimizer
+
+  model.compile(loss = 'binary_crossentropy', optimizer = opt, metrics = ['binary_accuracy']) # Compiles the model with the optimizer and metrics
+  history = model.fit(ds_training,epochs=args.epoch1, callbacks=cb, validation_data=ds_validation) # Trains the model
+
+
+
+
+
+
+
+if __name__ == '__main__':
+  execute_exp()

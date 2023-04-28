@@ -1,0 +1,52 @@
+// Java code samples
+// Created by Linh Ngo 
+// For the Java2 class
+
+//This is a Java class called "Song" that represents a single song. 
+// The class contains instance variables for the title, artist, and duration of the song, 
+// and methods for getting these values.
+// Connected to Playlist.java.txt
+
+
+
+
+import java.util.Arrays;
+
+public class Song {
+	 private String title; 
+	 private String artist; 
+	 private int [] duration;
+
+	 public Song(String title,String artist, int[] duration)
+	 {
+		 int[] copy= Arrays.copyOf(duration, duration.length);
+		 this.title= title;
+		 this.artist= artist;
+		 this.duration= copy;
+	 }
+	 
+	 public String getTitle()
+	 {
+		 return title;
+	 }
+	 
+	 public String getArtist()
+	 {
+		 return artist;
+	 }
+	 
+	 public int [] getDuration()
+	 {
+		 int[] copy= Arrays.copyOf(duration, duration.length);
+		 return copy;
+	 }
+}
+
+/*Summary: two Java classes - Song and Playlist - that are used to represent songs and playlists of songs, respectively.
+
+The Song class represents a single song and contains instance variables for the song's title, artist, and duration (in the form of an integer array).
+It also provides getter methods for accessing these values.
+
+The Playlist class represents a playlist of songs and contains instance variables for the songs in the playlist and other playlist-related information 
+such as the number of songs and the playlist's capacity. The class provides methods for adding and removing songs from the playlist, getting information 
+about the playlist and its songs, and expanding the playlist's capacity if necessary. */

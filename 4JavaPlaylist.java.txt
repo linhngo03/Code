@@ -1,0 +1,169 @@
+// Java code samples
+// Created by Linh Ngo 
+// For the Java2 class
+
+// This is a Java class called "Playlist" that represents a playlist of songs.
+// The class contains an array of songs, and methods for adding and removing songs from the playlist.
+// Connected to Song.java.txt
+
+import java.util.Arrays;
+
+
+public class Playlist {
+	private Song [] songs;
+	private int numSongs;
+	private static final int MIN_CAPACITY=3;
+	private static final int EXPAND_THRESHOLD=4;
+	private int expandBy =2;
+	private int expandFrequency= 0; 
+	
+	// Constructor method that creates a new Playlist object with a default capacity of 3 songs.
+	public Playlist()
+	{
+		songs= new Song[MIN_CAPACITY];
+	}
+	
+	// Constructor method that creates a new Playlist object with the specified capacity.
+	public Playlist(int capacity)
+	{
+		if(capacity<MIN_CAPACITY)
+		{
+			songs= new Song[MIN_CAPACITY];
+		}
+		else
+		{
+			songs= new Song[capacity];
+		}
+		
+	}
+	
+	// Method that returns the current capacity of the playlist.
+	public int getCapacity()
+	{
+		return songs.length;
+	}
+	
+	// Method that returns the number of songs currently in the playlist.
+	public int getNumSongs()
+	{
+		return numSongs;
+	}
+	
+	// Method that returns the song at the specified index in the playlist.
+	public Song getSong(int index)
+	{
+		if(index<0||index>songs.length-1)
+		{
+			return null;
+		}
+		else
+		{
+			return songs[index];
+		}
+	}
+	
+	// Method that returns a copy of the array of songs in the playlist.
+	public Song[] getSongs()
+	{
+		Song[] newsongs= Arrays.copyOf(songs,numSongs);
+		return newsongs;
+	}
+	
+	// Method that expands the capacity of the playlist by a factor of 2 if the playlist has been expanded more than 4 times.
+	public void expand()
+	{
+		if(expandFrequency>=EXPAND_THRESHOLD)
+		{
+			expandBy=expandBy*2;
+		}
+		
+		Song[] newsonggs=Arrays.copyOf(songs,songs.length+expandBy);
+		this.songs=newsonggs;
+		expandFrequency+=1;
+	}
+	
+	// Method that adds a new song to the playlist at the specified index.
+	public boolean addSong(int index, Song song)
+	{
+		if(song==null||index<0||index>numSongs)
+		{
+			return false;
+		}
+		
+		if(getCapacity()<getNumSongs()+1)
+		{
+			expand();
+		}
+			
+		for(int i=numSongs;i>index;--i)
+		{
+			songs[i]=songs[i-1];
+		}
+		songs[index]=song;
+		++ numSongs;
+		
+		return true;
+			
+	}
+	
+	// Method that adds a new song to the end of the playlist.
+	public boolean addSong(Song song)
+	{
+		
+		return addSong(numSongs,song);
+	}
+	
+	// Method that adds all the songs from the specified playlist to the end of this playlist.
+	public int addSongs(Playlist playlist)
+	{
+		
+		
+		if(playlist==null)
+		{
+			return 0;
+		}
+		
+		int added= playlist.getNumSongs();
+		
+		{
+		for(int i=0;i<added;++i)
+		{
+			if(playlist!=null)
+			{
+	
+				addSong(playlist.getSong(i));
+			}
+		}
+		}
+		return added;
+	}
+	
+	// Method that removes the song at the specified index from the playlist.
+	public Song removeSong(int index)
+	{
+		
+		if(getSong(index)==null)
+		{
+			return null;
+		}
+		
+		Song remove= getSong(index);
+		songs[index]=null;
+			for(int i=index;i<numSongs-1;++i)
+			{
+				songs[i]=songs[i+1];
+				
+			}
+		
+
+		--numSongs;
+		return remove;
+	}
+	
+	// Method that removes the last song in the playlist.
+	public Song removeSong()
+	{
+		return removeSong(numSongs-1);
+	}
+	
+}

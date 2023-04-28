@@ -1,0 +1,45 @@
+# Python code samples 
+# Created by Linh Ngo 
+# Planned to use this for an app called MenuCreator (personal project).
+# QR library: pip install qrcode
+# Python code that uses the "qrcode" library to generate a QR code for a given input text and save it as a PNG file
+
+"""Descriptions: The qrcode library provides functionalities to create QR codes with different sizes, error correction levels, and styles. 
+In this code, the QR code is created with version 1, which has a size of 21x21 modules, the error correction level is set to 
+ERROR_CORRECT_L, the box size is set to 10, and the border is set to 4. The function generate_qr_code takes two arguments: 
+the text to generate the QR code for and the file name to save the QR code image. The function first creates a QR code object 
+with the specified parameters and adds the input text, then adjusts its size and makes an image object of the QR code with a 
+fill color of "#6aff9b" and a background color of "black". Finally, the file name and location where the QR code image has been 
+saved is printed."""
+
+# To Do 
+import qrcode
+
+def generate_qr_code (text, file_name) :
+    qr=qrcode.QRCode(
+        version=1, 
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10, 
+        border=4,)
+    
+    qr .add_data (text)
+    qr .make (fit=True)
+    img = qr.make_image(fill_color="#6aff9b", back_color="black")
+    img.save (file_name)
+
+
+# Input text to generate QR code for
+text = "https://b001.io"
+# File name to save the QR code image
+file_name = "qr_code .png"
+# Generate the QR code
+generate_qr_code (text, file_name) 
+print (f"QR code saved as {file_name}")
+
+# take input 
+text2 = input("Enter text to generate QR code: ")
+file_name2 = input("Enter file name to save QR code (with extension .png): ")
+generate_qr_code(text2, file_name2)
+
+
+#
