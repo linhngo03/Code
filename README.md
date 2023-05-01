@@ -1,4 +1,4 @@
-# Linh Ngo Code Sample 
+# Code 
 Code Sample 
 
 How to download the Zipped file? 
